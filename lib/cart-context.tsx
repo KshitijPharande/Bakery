@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { type Cart, createCart, addToCart as addToCartAPI, getCart } from "./shopify"
+import { type Cart, createCart, addToCart as addToCartAPI, getCart, removeFromCart as removeFromCartAPI } from "./shopify"
 
 const isServerSide = typeof window === "undefined"
 
@@ -9,6 +9,7 @@ interface CartContextType {
   cart: Cart | null
   cartLoading: boolean
   addToCart: (variantId: string, quantity?: number) => Promise<void>
+  removeFromCart: (lineId: string) => Promise<void>
   cartItemsCount: number
 }
 
@@ -89,6 +90,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const removeFromCart = async (lineId: string) => {
+    if (!cart) return;
+    setCartLoading(true);
+    try {
+      const updatedCart = await removeFromCartAPI(cart.id, lineId);
+      setCart(updatedCart);
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+      throw error;
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
   const cartItemsCount = cart?.lines.edges.reduce((total, { node }) => total + node.quantity, 0) || 0
 
   return (
@@ -97,6 +112,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         cart,
         cartLoading,
         addToCart,
+        removeFromCart,
         cartItemsCount,
       }}
     >
