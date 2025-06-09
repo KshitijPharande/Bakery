@@ -4,8 +4,14 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import Navbar from "@/components/navbar"
 import { CartProvider } from "@/lib/cart-context"
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/600.css";
 
 const inter = Inter({ subsets: ["latin"] })
+
+const poppins = {
+  fontFamily: 'Poppins, Inter, sans-serif',
+};
 
 export const metadata: Metadata = {
   title: "Sweet Delights Bakery",
@@ -19,9 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body style={poppins} className={inter.className + " bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen"}>
         <CartProvider>
-          <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+          <div className="min-h-screen">
             <Navbar />
             <main>{children}</main>
           </div>

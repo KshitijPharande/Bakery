@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/lib/cart-context"
 import { type ShopifyProduct, type ShopifyCollection, getProductsByCollection } from "@/lib/shopify"
 import { Loader2 } from "lucide-react"
+import { motion } from "framer-motion"
 
 interface MenuClientProps {
   products: ShopifyProduct[]
@@ -95,26 +96,33 @@ export default function MenuClient({ products: initialProducts, collections }: M
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => {
+          {products.map((product, idx) => {
             const image = product.images.edges[0]?.node
             const variant = product.variants.edges[0]?.node
             const price = product.priceRange.minVariantPrice
             const isAddingThisItem = addingToCart === product.id
 
             return (
-              <div
+              <motion.div
                 key={product.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.07, duration: 0.5, type: 'spring' }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
               >
                 {/* Product Image */}
-                <div className="aspect-square relative">
+                <motion.div className="aspect-square relative" whileHover={{ scale: 1.05 }}>
                   <Image
                     src={image?.url || "/placeholder.svg?height=300&width=300"}
                     alt={image?.altText || product.title}
                     fill
-                    className="object-cover"
+                    className="object-cover rounded-2xl shadow-md"
+                    placeholder="blur"
+                    blurDataURL="/placeholder.svg?height=10&width=10"
                   />
-                </div>
+                </motion.div>
 
                 {/* Product Info */}
                 <div className="p-4">
@@ -126,28 +134,33 @@ export default function MenuClient({ products: initialProducts, collections }: M
 
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold text-amber-600">
-                      ${Number.parseFloat(price.amount).toFixed(2)}
+                      {new Intl.NumberFormat(undefined, {
+                        style: 'currency',
+                        currency: price.currencyCode || 'INR',
+                      }).format(Number(price.amount))}
                     </span>
 
-                    <Button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={!variant?.availableForSale || cartLoading || isAddingThisItem}
-                      className="bg-amber-600 hover:bg-amber-700 text-white"
-                    >
-                      {isAddingThisItem ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Adding...
-                        </>
-                      ) : (
-                        "Add to Cart"
-                      )}
-                    </Button>
+                    <motion.div whileTap={{ scale: 0.95 }}>
+                      <Button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={!variant?.availableForSale || cartLoading || isAddingThisItem}
+                        className="bg-amber-600 hover:bg-amber-700 text-white shadow-md"
+                      >
+                        {isAddingThisItem ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Adding...
+                          </>
+                        ) : (
+                          "Add to Cart"
+                        )}
+                      </Button>
+                    </motion.div>
                   </div>
 
                   {!variant?.availableForSale && <p className="text-sm text-red-500 mt-2">Out of Stock</p>}
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>

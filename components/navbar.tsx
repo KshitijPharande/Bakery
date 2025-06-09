@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { ShoppingCart, Menu, X } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -17,7 +18,7 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="bg-amber-50 shadow-md sticky top-0 z-50">
+    <nav className="backdrop-blur-md bg-white/70 shadow-lg sticky top-0 z-50 border-b border-amber-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -42,12 +43,26 @@ export default function Navbar() {
               href="/cart"
               className="relative text-amber-800 hover:text-amber-600 p-2 transition-colors duration-200"
             >
-              <ShoppingCart className="h-6 w-6" />
-              {cartItemsCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemsCount}
-                </span>
-              )}
+              <motion.div
+                initial={{ scale: 0.8, rotate: 0 }}
+                animate={{ scale: 1.1, rotate: 10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                className="inline-block"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {cartItemsCount > 0 && (
+                  <motion.span
+                    key={`cart-badge-${cartItemsCount}`}
+                    initial={{ scale: 0.7, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.7, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow"
+                  >
+                    {cartItemsCount}
+                  </motion.span>
+                )}
+              </motion.div>
             </Link>
           </div>
 
